@@ -26,6 +26,8 @@ electron.ipcMain.handle("get-contacts", (event) => {
 });
 function createWindow() {
   const mainWindow = new electron.BrowserWindow({
+    titleBarStyle: "hidden",
+    ...process.platform !== "darwin" ? { titleBarOverlay: true } : {},
     width: 900,
     height: 670,
     show: false,
