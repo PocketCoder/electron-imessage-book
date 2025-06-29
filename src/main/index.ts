@@ -5,7 +5,7 @@ import { existsSync } from 'fs';
 import Database from 'better-sqlite3';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import { askForFullDiskAccess, getAuthStatus } from 'node-mac-permissions';
-import icon from '../../resources/icon.png?asset';
+
 
 ipcMain.handle('find-default', () => {
 	return existsSync(
@@ -13,15 +13,19 @@ ipcMain.handle('find-default', () => {
 	);
 });
 
-ipcMain.handle('get-contacts', (event) => {
-	try {
-		const db = new Database(
-			`/Users/${os.userInfo().username}/Library/Messages/chat.db`,
-			{ fileMustExist: true }
-		);
-		const contacts = db.prepare('SELECT DISTINCT id FROM handle;').all();
-		//console.log(contacts);
-		/*
+ipcMain.handle(
+	'get-contacts',
+	(event): { success: boolean; contacts?: string[]; error?: string } => {
+		try {
+			const db = new Database(
+				`/Users/${os.userInfo().username}/Library/Messages/chat.db`,
+				{ fileMustExist: true }
+			);
+			const contacts = db
+				.prepare('SELECT DISTINCT id FROM handle;')
+				.all() as string[];
+			//console.log(contacts);
+			/*
 		const chats = db.prepare(`SELECT
                  *,
                  c.chat_id,
@@ -38,11 +42,12 @@ ipcMain.handle('get-contacts', (event) => {
              LIMIT
                  100000;`);
 		console.log(chats.run());*/
-		return { success: true, contacts: contacts };
-	} catch (err: any) {
-		return { success: false, error: err.message };
+			return { success: true, contacts: contacts };
+		} catch (err: any) {
+			return { success: false, error: err.message };
+		}
 	}
-});
+);
 
 function createWindow(): void {
 	// Create the browser window.
@@ -51,13 +56,12 @@ function createWindow(): void {
 		height: 670,
 		show: false,
 		autoHideMenuBar: true,
-		...(process.platform === 'linux' ? { icon } : {}),
+		
 		webPreferences: {
 			preload: join(__dirname, '../preload/index.js'),
 			sandbox: false,
 		},
 	});
-	console.log(path.resolve(__dirname, '../resources/icon.png'));
 
 	mainWindow.on('ready-to-show', () => {
 		mainWindow.show();

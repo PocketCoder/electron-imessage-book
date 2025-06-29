@@ -34,8 +34,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false
-    },
-    icon: path.join(__dirname, "../renderer/src/assets/icon.png")
+    }
   });
   console.log(path.resolve(__dirname, "../resources/icon.png"));
   mainWindow.on("ready-to-show", () => {
